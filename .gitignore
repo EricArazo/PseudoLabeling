@@ -1,0 +1,15 @@
+.DS_Store
+*.pyc
+cifar10/data/cifar-10*
+cifar10/metrics*
+cifar10/noise_models*
+cifar10/checkpoints/*
+cifar10/model/data/*
+cifar10/data/model_data/*
+
+cifar100/data/cifar-10*
+cifar100/metrics*
+cifar100/noise_models*
+cifar100/checkpoints/*
+cifar100/model/data/*
+cifar100/data/model_data/*
