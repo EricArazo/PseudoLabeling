@@ -1,6 +1,6 @@
 # Official implmentation of "Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning" - link_to_arxiv
 
-You can find an example script to run the poroposed SSL approach on CIFAR-10 with 1000 labeled samples in [Run... .sh](https://github.com/...) and for CIFAR-100 with 4000 labeled samples in [Run... .sh](https://github.com/...). Execute the script from the corresponding folder to run the model.
+You can find an example script to run the poroposed SSL approach on CIFAR-10 with 1000 labeled samples in [Run... .sh](https://github.com/EricArazo/PseudoLabeling/cifar10/RunScripts_SOTA1000.sh) and for CIFAR-100 with 4000 labeled samples in [Run... .sh](https://github.com/EricArazo/PseudoLabeling/cifar100/RunScripts_SOTA4000.sh). Execute the script from the corresponding folder to run the model.
 
 #### This has to be reviewed...
  | Dependencies  |
@@ -20,23 +20,10 @@ Execute the following to get details about parameters. Most of them are set by d
 $ python train.py --h
 ```
 The most relevant parameters are the following:
-* arg1: explamation of the arg...
-* arg1: explamation of the arg...
-* arg1: explamation of the arg...
-* arg1: explamation of the arg...
-
-
-### Environement
-
-#### Should i create the environment???
-
-If you are using conda, you can execute:
-```sh
-$ conda env create -f environment.yml
-$ conda activate lnoise
-```
-This will include all dependencies in a new conda environement called lnoise
-
+* --labeled_samples: Number of labeled samples 
+* --epoch: Number of epochs of training
+* --M: Epochs where the learning rate is divided by 10
+* --label_noise: ratio of unlaebeled samples to be relabeled with a uniform distribution
 
 ### Accuracies
 
@@ -63,3 +50,9 @@ Note: We thank authors from [1](https://github.com/benathi/fastswa-semi-sup) for
 ```
 
 Eric Arazo, Diego Ortego, Paul Albert, Noel E. O'Connor, Kevin McGuinness, Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning, ArXiv, 2019
+
+
+## Missing in the repo:
+* Prepare an environment.yml
+* Review the dependences
+* Numbers for 500 labels
