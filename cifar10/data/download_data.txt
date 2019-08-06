@@ -1,0 +1,1 @@
+Download the CIFAR-10 dataset from here: https://www.cs.toronto.edu/~kriz/cifar.html
