@@ -25,7 +25,7 @@ The most relevant parameters are the following:
 * --M: Epochs where the learning rate is divided by 10
 * --label_noise: ratio of unlaebeled samples to be relabeled with a uniform distribution
 
-To run the experiments with CIFAR-10 and CIFAR-100 put the corresponding dataset in the folder ./CIFAR10/data or ./CIFAR100/data
+To run the experiments download the corresponding dataset in the folder ./CIFAR10/data or ./CIFAR100/data.
 
 ### Accuracies
 
