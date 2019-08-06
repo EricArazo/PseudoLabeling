@@ -1,4 +1,3 @@
-#this is the one I use to test the mixup tracking (temporarily)
 from __future__ import print_function
 import argparse
 import torch
@@ -10,11 +9,9 @@ import scipy.stats as stats
 import math
 import numpy as np
 from matplotlib import pyplot as plt
-from IPython import embed
 from utils.AverageMeter import AverageMeter
 from utils.criterion import *
 import time
-from sklearn.mixture import GaussianMixture as GMM
 import warnings
 warnings.filterwarnings('ignore')
 from sklearn import preprocessing as preprocessing
@@ -22,6 +19,9 @@ from sklearn import preprocessing as preprocessing
 
 import sys
 from tqdm import tqdm
+
+from math import pi
+from math import cos
 
 ##############################################################################
 ############################# TRAINING LOSSSES ###############################
@@ -40,9 +40,6 @@ def loss_soft_reg_ep(preds, labels, soft_labels, device, args):
     return prob, loss
 
 ##############################################################################
-
-from math import pi
-from math import cos
 
 def cyclic_lr(args, iteration, current_epoch, it_per_epoch):
     # proposed learning late function
@@ -75,7 +72,6 @@ def loss_mixup_reg_ep(preds, labels, targets_a, targets_b, device, lam, args):
     prob_avg = torch.mean(prob, dim=0)
     p = torch.ones(args.num_classes).to(device) / args.num_classes
 
-    # L_c = -torch.mean(torch.sum(soft_labels * F.log_softmax(preds, dim=1), dim=1))   # Soft labels
     mixup_loss_a = -torch.mean(torch.sum(targets_a * F.log_softmax(preds, dim=1), dim=1))
     mixup_loss_b = -torch.mean(torch.sum(targets_b * F.log_softmax(preds, dim=1), dim=1))
     mixup_loss = lam * mixup_loss_a + (1 - lam) * mixup_loss_b
@@ -98,7 +94,6 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
 
     top1_origLab = AverageMeter()
 
-
     # switch to train mode
     model.train()
     loss_per_batch = []
@@ -119,10 +114,7 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
 
         print("Mixup alpha value:{}".format(alpha))
 
-    ####### Track the accuracy of the unlabeled samples wrt the original labels... ##############
     target_original = torch.from_numpy(train_loader.dataset.original_labels)
-
-    #############################################################################################
 
     counter = 1
     for imgs, labels, soft_labels, index in train_loader:
@@ -212,7 +204,6 @@ def testing(args, model, device, test_loader):
         100. * correct / len(test_loader.dataset)))
 
     loss_per_epoch = [np.average(loss_per_batch)]
-    #acc_val_per_epoch = [np.average(acc_val_per_batch)]
     acc_val_per_epoch = [np.array(100. * correct / len(test_loader.dataset))]
 
     return (loss_per_epoch, acc_val_per_epoch)
@@ -241,7 +232,6 @@ def validating(args, model, device, test_loader):
         100. * correct / len(test_loader.dataset)))
 
     loss_per_epoch = [np.average(loss_per_batch)]
-    #acc_val_per_epoch = [np.average(acc_val_per_batch)]
     acc_val_per_epoch = [np.array(100. * correct / len(test_loader.dataset))]
 
     return (loss_per_epoch, acc_val_per_epoch)
