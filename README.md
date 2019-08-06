@@ -32,9 +32,14 @@ The most relevant parameters are the following:
 |CIFAR-100|----|----|----|39.67 ± 0.13|31.00 ± 0.25|
 
 
-Note: We thank authors from [1](https://github.com/benathi/fastswa-semi-sup) for the network implmentation we used of the "13-layer network" that we use in our code.
+### Acknowledgements
 
-[1] Athiwaratkun, B. and Finzi, M. and Izmailov, P. and Wilson, A.G., "There Are Many Consistent Explanations of Unlabeled Data: Why You Should Average", in International Conference on Learning Representations (ICLR), 2019
+We thank authors from [1](https://github.com/benathi/fastswa-semi-sup) for the network implmentation of the "13-layer network" that we use in our code, as well we thank [2](https://github.com/CuriousAI/mean-teacher) for the code we used the sampler.
+
+[1] Athiwaratkun, Ben and Finzi, Marc and Izmailov, Pavel and Wilson, Andrew Gordon, "There Are Many Consistent Explanations of Unlabeled Data: Why You Should Average", in International Conference on Learning Representations (ICLR), 2019
+
+[2] Antti Tarvainen, Harri Valpola, "Mean teachers are better role models: Weight-averaged consistency targets improve semi-supervised deep learning results", in Advances in neural information processing systems, 2017.  
+
 
 ### Please consider citing the following paper if you find this work useful for your research.
 
