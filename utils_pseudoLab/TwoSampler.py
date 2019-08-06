@@ -1,3 +1,5 @@
+# Code obtained from:
+# https://github.com/CuriousAI/mean-teacher/blob/bd4313d5691f3ce4c30635e50fa207f49edf16fe/pytorch/mean_teacher/data.py
 
 import itertools
 import logging
