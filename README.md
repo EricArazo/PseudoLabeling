@@ -13,6 +13,7 @@ You can find an example script to run the poroposed SSL approach on CIFAR-10 wit
 | tqdm == 4.28.1|
 | numpy == 1.15.3|
 
+
 ### Parameters details
 Execute the following to get details about parameters. Most of them are set by default to replicate our experiments.
 ``` sh
@@ -23,6 +24,8 @@ The most relevant parameters are the following:
 * --epoch: Number of epochs of training
 * --M: Epochs where the learning rate is divided by 10
 * --label_noise: ratio of unlaebeled samples to be relabeled with a uniform distribution
+
+To run the experiments with CIFAR-10 and CIFAR-100 put the corresponding dataset in the folder ./CIFAR10/data or ./CIFAR100/data
 
 ### Accuracies
 

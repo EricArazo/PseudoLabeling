@@ -74,7 +74,7 @@ def data_config(args, transform_train, transform_test, dst_folder):
     ####################################### Train ##########################################################
     trainset, clean_labels, noisy_labels, train_noisy_indexes, train_clean_indexes, valset = get_dataset(args, transform_train, transform_test, dst_folder)
 
-    if not args.labeled_batch_size == 0:
+    if args.labeled_batch_size > 0 and not args.dataset_type == 'sym_noise_warmUp':
         print("Training with two samplers. {0} clean samples per batch".format(args.labeled_batch_size))
         batch_sampler = TwoStreamBatchSampler(train_noisy_indexes, train_clean_indexes, args.batch_size, args.labeled_batch_size)
         train_loader = torch.utils.data.DataLoader(trainset, batch_sampler=batch_sampler, num_workers=0, pin_memory=True)
@@ -174,7 +174,7 @@ def main(args, dst_folder):
     ])
 
     # data lodaer
-    train_loader, test_loader, rain_noisy_indexes = data_config(args, transform_train, transform_test,  dst_folder)
+    train_loader, test_loader, train_noisy_indexes = data_config(args, transform_train, transform_test,  dst_folder)
 
 
     if args.network == "MT_Net":
@@ -256,7 +256,7 @@ def main(args, dst_folder):
         model.eval()
         initial_rand_relab = args.label_noise
         results = np.zeros((len(train_loader.dataset), args.num_classes), dtype=np.float32)
-        for images, labels, soft_labels, index, z_exp_labels in train_loader:
+        for images, labels, soft_labels, index in train_loader:
 
             images = images.to(device)
             labels = labels.to(device)

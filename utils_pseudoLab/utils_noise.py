@@ -118,11 +118,6 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
 
     counter = 1
     for imgs, labels, soft_labels, index in train_loader:
-        if args.SE_applyCLR:
-            it_per_epoch = len(train_loader.dataset)/args.batch_size
-            CLR = cyclic_lr(args, counter-1, epoch-1, it_per_epoch)
-            optimizer.param_groups[0]['lr'] = CLR
-
         images = imgs.to(device)
         labels = labels.to(device)
         soft_labels = soft_labels.to(device)
