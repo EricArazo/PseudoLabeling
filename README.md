@@ -1,6 +1,7 @@
-# Official implmentation of "Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning" - link_to_arxiv
+# Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning (2019)
+# Paper: https://arxiv.org/abs/1908.02983
 
-You can find an example script to run the poroposed SSL approach on CIFAR-10 with 1000 labeled samples in [RunScripts_SOTA1000.sh](https://github.com/EricArazo/PseudoLabeling/cifar10/RunScripts_SOTA1000.sh) and for CIFAR-100 with 4000 labeled samples in [RunScripts_SOTA4000.sh](https://github.com/EricArazo/PseudoLabeling/cifar100/RunScripts_SOTA4000.sh). Execute the script from the corresponding folder to run the model.
+Official Pytorch implementation from authors. Our pseudo-labeling approach achieves state-of-the-art performance for semi-supervised learning (SSL) in Image Classification. You can find an example script to run the poroposed SSL approach on CIFAR-10 with 1000 labeled samples in [RunScripts_SOTA1000.sh](https://github.com/EricArazo/PseudoLabeling/cifar10/RunScripts_SOTA1000.sh) and for CIFAR-100 with 4000 labeled samples in [RunScripts_SOTA4000.sh](https://github.com/EricArazo/PseudoLabeling/cifar100/RunScripts_SOTA4000.sh). Execute the script from the corresponding folder to run the model.
 
  | Dependencies  |
 | ------------- |
