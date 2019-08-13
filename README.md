@@ -38,7 +38,7 @@ To run the experiments download the corresponding dataset in the folder ./CIFAR1
 
 ### Acknowledgements
 
-We would like to thank the authors from [1] (https://github.com/benathi/fastswa-semi-sup) for the network implmentation of the "13-layer network" that we use in our code, as well we thank [2] (https://github.com/CuriousAI/mean-teacher) for the code we used the sampler.
+We would like to thank the authors from [1] (https://github.com/benathi/fastswa-semi-sup) for the "13-layer network" implmentation that we use in our code, as well as [2] (https://github.com/CuriousAI/mean-teacher) for the code we use for the data sampler.
 
 [1] Athiwaratkun, Ben and Finzi, Marc and Izmailov, Pavel and Wilson, Andrew Gordon, "There Are Many Consistent Explanations of Unlabeled Data: Why You Should Average", in International Conference on Learning Representations (ICLR), 2019
 
