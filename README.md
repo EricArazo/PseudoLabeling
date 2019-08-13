@@ -51,10 +51,10 @@ We would like to thank the authors from [1] (https://github.com/benathi/fastswa-
  @article{PseudoLabel2019,
   title = {Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning},
   authors = {Eric Arazo and Diego Ortego and Paul Albert and Noel E O'Connor and Kevin McGuinness},
-  journal = {arXiv e-prints},
+  journal = {arXiv:1908.02983},
   month = {August},
   year = {2019}
  }
 ```
 
-Eric Arazo, Diego Ortego, Paul Albert, Noel E. O'Connor, Kevin McGuinness, Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning, ArXiv, 2019
+Eric Arazo, Diego Ortego, Paul Albert, Noel E. O'Connor, Kevin McGuinness, Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning, arXiv:1908.02983, 2019
