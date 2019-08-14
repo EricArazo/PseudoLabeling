@@ -141,6 +141,8 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
             prob_mixup, loss = loss_mixup_reg_ep(outputs, labels, targets_a, targets_b, device, lam, args)
             outputs = output_x1
 
+        results[index.detach().numpy().tolist()] = prob.cpu().detach().numpy().tolist()
+        
         prec1, prec5 = accuracy_v2(outputs, labels, top=[1, 1])
         train_loss.update(loss.item(), images.size(0))
         top1.update(prec1.item(), images.size(0))
