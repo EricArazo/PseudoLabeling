@@ -32,7 +32,7 @@ To run the experiments download the corresponding dataset in the folder ./CIFAR1
 ### Accuracies
 
 |Number of labeled samples |500|1000|4000|10000|
-|----|----|----|----|----|----|
+|----|----|----|----|----|
 |CIFAR-10|8.80 ± 0.45|6.85 ± 0.15||5.97 ± 0.15|----|
 |CIFAR-100|----|----|37.55 ± 1.09|32.15 ± 0.5|
 
@@ -44,8 +44,6 @@ We would like to thank [1] (https://github.com/benathi/fastswa-semi-sup) for the
 [1] Athiwaratkun, Ben and Finzi, Marc and Izmailov, Pavel and Wilson, Andrew Gordon, "There Are Many Consistent Explanations of Unlabeled Data: Why You Should Average", in International Conference on Learning Representations (ICLR), 2019
 
 [2] Verma, Vikas and Lamb, Alex and Kannala, Juho and Bengio, Yoshua and Lopez-Paz, David, "Interpolation Consistency Training for Semi-Supervised Learning", in International Joint Conferences on Artificial Intelligence (IJCAI), 2019.
-
- "Mean teachers are better role models: Weight-averaged consistency targets improve semi-supervised deep learning results", in Advances in neural information processing systems, 2017.
 
 [3] Antti Tarvainen, Harri Valpola, "Mean teachers are better role models: Weight-averaged consistency targets improve semi-supervised deep learning results", in Advances in neural information processing systems, 2017. 
 
