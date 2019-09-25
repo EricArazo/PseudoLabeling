@@ -29,7 +29,7 @@ The most relevant parameters are the following:
 
 To run the experiments download the corresponding dataset in the folder ./CIFAR10/data or ./CIFAR100/data.
 
-### Accuracies
+### Test Errors
 
 |Number of labeled samples |500|1000|4000|10000|
 |----|----|----|----|----|
