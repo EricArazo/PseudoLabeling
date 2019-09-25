@@ -33,7 +33,7 @@ To run the experiments download the corresponding dataset in the folder ./CIFAR1
 
 |Number of labeled samples |500|1000|4000|10000|
 |----|----|----|----|----|
-|CIFAR-10|8.80 ± 0.45|6.85 ± 0.15||5.97 ± 0.15|----|
+|CIFAR-10|8.80 ± 0.45|6.85 ± 0.15|5.97 ± 0.15|----|
 |CIFAR-100|----|----|37.55 ± 1.09|32.15 ± 0.5|
 
 
