@@ -11,8 +11,8 @@ def get_dataset(args, transform_train, transform_val, dst_folder):
 
     # get train/val dataset
     train_indexes, val_indexes = train_val_split(args, cifar100_train_val.train_labels)
-    train = Cifar100Train(args, dst_folder, train_indexes, train=True, transform=transform_train)
-    validation = Cifar100Train(args, dst_folder, val_indexes, train=True, transform=transform_val)
+    train = Cifar100Train(args, dst_folder, train_indexes, train=True, transform=transform_train, pslab_transform = transform_val)
+    validation = Cifar100Train(args, dst_folder, val_indexes, train=True, transform=transform_val, pslab_transform = transform_val)
 
     if args.dataset_type == 'sym_noise_warmUp':
         clean_labels, noisy_labels, noisy_indexes, clean_indexes = train.symmetric_noise_warmUp_semisup()
@@ -42,8 +42,7 @@ def train_val_split(args, train_val):
 
 
 class Cifar100Train(tv.datasets.CIFAR100):
-    # including hard labels & soft labels
-    def __init__(self, args, dst_folder, train_indexes=None, train=True, transform=None, target_transform=None, download=False):
+    def __init__(self, args, dst_folder, train_indexes=None, train=True, transform=None, target_transform=None, pslab_transform=None, download=False):
         super(Cifar100Train, self).__init__(args.train_root, train=train, transform=transform, target_transform=target_transform, download=download)
         self.args = args
         if train_indexes is not None:
@@ -60,10 +59,9 @@ class Cifar100Train(tv.datasets.CIFAR100):
         self.alpha = 0.6
         self.gaus_noise = self.args.gausTF
         self.original_labels = np.copy(self.train_labels)
+        self.pslab_transform = pslab_transform
 
     def symmetric_noise_for_semiSup(self):
-        # to be more equal, every category can be processed separately
-        # np.random.seed(42)
         np.random.seed(self.args.seed)
         original_labels = np.copy(self.train_labels)
         noisy_indexes = [] # initialize the vector
@@ -82,9 +80,6 @@ class Cifar100Train(tv.datasets.CIFAR100):
             for i in range(len(indexes)):
                 if i < unlab_per_class:
                     label_sym = np.random.randint(self.args.num_classes, dtype=np.int32)
-
-                    # while(label_sym == original_labels[indexes[i]]):
-                    #     label_sym = np.random.randint(self.args.num_classes, dtype=np.int32)
                     self.train_labels[indexes[i]] = label_sym
 
                 self.soft_labels[indexes[i]][self.train_labels[indexes[i]]] = 1
@@ -92,7 +87,6 @@ class Cifar100Train(tv.datasets.CIFAR100):
             noisy_indexes.extend(indexes[:unlab_per_class])
             clean_indexes.extend(indexes[unlab_per_class:])
 
-        # print("Training with {0} labeled samples ({1} unlabeled samples)".format(num_clean_samples, num_unlab_samples))
         return original_labels, self.train_labels,  np.asarray(noisy_indexes),  np.asarray(clean_indexes)
 
     def symmetric_noise_warmUp_semisup(self):
@@ -138,11 +132,6 @@ class Cifar100Train(tv.datasets.CIFAR100):
 
 
     def update_labels_randRelab(self, result, train_noisy_indexes, rand_ratio):
-        # use the average output prob of the network of the past [epoch_update] epochs as s.
-        # update from [begin] epoch.
-
-        # print("------------------------> Count: ", self._count)
-
 
         idx = self._count % self.args.epoch_update
         self.prediction[idx,:] = result
@@ -160,7 +149,6 @@ class Cifar100Train(tv.datasets.CIFAR100):
 
         if self._count >= self.args.epoch_begin:
 
-            # print("------------------------> Count (doing relabeling): ", self._count)
             relabel_indexes = list(train_noisy_indexes[idx_relab])
             self.soft_labels[relabel_indexes] = result[relabel_indexes]
             self.train_labels[relabel_indexes] = self.soft_labels[relabel_indexes].argmax(axis = 1).astype(np.int64)
@@ -177,12 +165,9 @@ class Cifar100Train(tv.datasets.CIFAR100):
             print("Samples relabeled with the prediction: ", str(len(idx_relab)))
             print("Samples relabeled with '{0}': ".format(self.args.relab), str(len(idx_rand)))
 
-        #embed()
         self.Z_exp_labels = self.alpha * self.Z_exp_labels + (1. - self.alpha) * self.prediction[idx,:]
         self.z_exp_labels =  self.Z_exp_labels * (1. / (1. - self.alpha ** (self._count + 1)))
-            # self.soft_labels = self.prediction.mean(axis = 0)
-            # check the paper for this, take the average output prob as s used both in soft and hard labels
-            # self.train_labels = self.soft_labels.argmax(axis = 1).astype(np.int64)
+
         self._count += 1
 
         # save params
@@ -191,21 +176,18 @@ class Cifar100Train(tv.datasets.CIFAR100):
 
 
 
-    def reload_labels(self):
-        param = np.load(self.dst)
-        self.train_data = param['data']
-        self.train_labels = param['hard_labels']
-        self.soft_labels = param['soft_labels']
-
-
     def gaussian(self, ins, mean, stddev):
         noise = ins.data.new(ins.size()).normal_(mean, stddev)
         return ins + noise
 
     def __getitem__(self, index):
         img, labels, soft_labels, z_exp_labels = self.train_data[index], self.train_labels[index], self.soft_labels[index], self.z_exp_labels[index]
-        # doing this so that it is consistent with all other datasets.
         img = Image.fromarray(img)
+
+        if self.args.DApseudolab == "False":
+            img_pseudolabels = self.pslab_transform(img)
+        else:
+            img_pseudolabels = 0
 
         if self.transform is not None:
             img = self.transform(img)
@@ -215,4 +197,4 @@ class Cifar100Train(tv.datasets.CIFAR100):
         if self.target_transform is not None:
             labels = self.target_transform(labels)
 
-        return img, labels, soft_labels, index
+        return img, img_pseudolabels, labels, soft_labels, index

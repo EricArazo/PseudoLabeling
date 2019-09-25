@@ -22,6 +22,9 @@ from TwoSampler import *
 from utils_noise import *
 from ssl_networks import CNN as MT_Net
 
+from PreResNet import PreactResNet18_WNdrop
+from wideArchitectures import WRN28_2_wn
+
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -64,14 +67,18 @@ def parse_args():
     parser.add_argument('--swa_lr', type=float, default=-0.01, help='LR')
     parser.add_argument('--labeled_batch_size', default=8, type=int, metavar='N', help="labeled examples per minibatch (default: no constrain)")
     parser.add_argument('--validation_exp', type=str, default='False', help='Ignore the testing set during training and evaluation (it gets 5k samples from the training data to do the validation step)')
+    parser.add_argument('--drop_extra_forward', type=str, default='True', help='Do an extra forward pass to compute the labels without dropout.')
     parser.add_argument('--val_samples', type=int, default=5000, help='Number of samples to be kept for validation (from the training set))')
+    parser.add_argument('--DApseudolab', type=str, default="False", help='Apply data augmentation when computing pseudolabels')
+    parser.add_argument('--DA', type=str, default='standard', help='Chose the type of DA')
 
     args = parser.parse_args()
     return args
 
 def data_config(args, transform_train, transform_test, dst_folder):
-    #trainset = datasets.CIFAR10(root='./data', train=True, download=False, transform=transform_train)
 
+    if args.validation_exp == "False":
+        args.val_samples = 0
 
     ####################################### Train ##########################################################
     trainset, clean_labels, noisy_labels, train_noisy_indexes, train_clean_indexes, valset = get_dataset(args, transform_train, transform_test, dst_folder)
@@ -161,13 +168,27 @@ def main(args, dst_folder):
         mean = [0.5071, 0.4867, 0.4408]
         std = [0.2675, 0.2565, 0.2761]
 
-    transform_train = transforms.Compose([
-        transforms.Pad(2, padding_mode='reflect'),
-        transforms.RandomCrop(32),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize(mean, std),
-    ])
+    if args.DA == "standard":
+        transform_train = transforms.Compose([
+            transforms.Pad(2, padding_mode='reflect'),
+            transforms.RandomCrop(32),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ])
+
+    elif args.DA == "jitter":
+        transform_train = transforms.Compose([
+            transforms.Pad(2, padding_mode='reflect'),
+            transforms.ColorJitter(brightness= 0.4, contrast= 0.4, saturation= 0.4, hue= 0.1),
+            transforms.RandomCrop(32),
+            transforms.RandomHorizontalFlip(),
+            transforms.ToTensor(),
+            transforms.Normalize(mean, std),
+        ])
+    else:
+        print("Wrong value for --DA argument.")
+
 
     transform_test = transforms.Compose([
         transforms.ToTensor(),
@@ -180,6 +201,15 @@ def main(args, dst_folder):
     if args.network == "MT_Net":
         print("Loading MT_Net...")
         model = MT_Net(num_classes = args.num_classes, dropRatio = args.dropout).to(device)
+
+    elif args.network == "WRN28_2_wn":
+        print("Loading WRN28_2...")
+        model = WRN28_2_wn(num_classes = args.num_classes, dropout = args.dropout).to(device)
+
+    elif args.network == "PreactResNet18_WNdrop":
+        print("Loading preActResNet18_WNdrop...")
+        model = PreactResNet18_WNdrop(drop_val = args.dropout, num_classes = args.num_classes).to(device)
+
 
 
     print('Total params: %2.fM' % (sum(p.numel() for p in model.parameters()) / 1000000.0))
@@ -259,7 +289,7 @@ def main(args, dst_folder):
         model.eval()
         initial_rand_relab = args.label_noise
         results = np.zeros((len(train_loader.dataset), 10), dtype=np.float32)
-        for images, labels, soft_labels, index in train_loader:
+        for images, images_pslab, labels, soft_labels, index in train_loader:
 
             images = images.to(device)
             labels = labels.to(device)

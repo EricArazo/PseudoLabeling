@@ -117,16 +117,50 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
     target_original = torch.from_numpy(train_loader.dataset.original_labels)
 
     counter = 1
-    for imgs, labels, soft_labels, index in train_loader:
+    for imgs, img_pslab, labels, soft_labels, index in train_loader:
         images = imgs.to(device)
         labels = labels.to(device)
         soft_labels = soft_labels.to(device)
 
+        if args.DApseudolab == "False":
+            images_pslab = img_pslab.to(device)
+
         if args.loss_term == "MixUp_ep":
-            optimizer.zero_grad()
-            output_x1 = model(images)
-            output_x1.detach_()
-            optimizer.zero_grad()
+            if args.dropout > 0.0 and args.drop_extra_forward == "True":
+                if args.network == "PreactResNet18_WNdrop":
+                    tempdrop = model.drop
+                    model.drop = 0.0
+
+                elif args.network == "WRN28_2_wn":
+                    for m in model.modules():
+                        if isinstance(m, nn.Dropout):
+                            tempdrop = m.p
+                            m.p = 0.0
+                else:
+                    tempdrop = model.drop.p
+                    model.drop.p = 0.0
+
+            if args.DApseudolab == "False":
+                optimizer.zero_grad()
+                output_x1 = model(images_pslab)
+                output_x1.detach_()
+                optimizer.zero_grad()
+            else:
+                optimizer.zero_grad()
+                output_x1 = model(images)
+                output_x1.detach_()
+                optimizer.zero_grad()
+
+            if args.dropout > 0.0 and args.drop_extra_forward == "True":
+                if args.network == "PreactResNet18_WNdrop":
+                    model.drop = tempdrop
+
+                elif args.network == "WRN28_2_wn":
+                    for m in model.modules():
+                        if isinstance(m, nn.Dropout):
+                            m.p = tempdrop
+                else:
+                    model.drop.p = tempdrop
 
             images, targets_a, targets_b, lam = mixup_data(images, soft_labels, alpha, device)
 
@@ -142,7 +176,7 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
             outputs = output_x1
 
         results[index.detach().numpy().tolist()] = prob.cpu().detach().numpy().tolist()
-        
+
         prec1, prec5 = accuracy_v2(outputs, labels, top=[1, 1])
         train_loss.update(loss.item(), images.size(0))
         top1.update(prec1.item(), images.size(0))
@@ -213,7 +247,7 @@ def validating(args, model, device, test_loader):
     test_loss = 0
     correct = 0
     with torch.no_grad():
-        for batch_idx, (data, target, _, _, _) in enumerate(test_loader):
+        for batch_idx, (data, _, target, _, _, _) in enumerate(test_loader):
             data, target = data.to(device), target.to(device)
             output = model(data)
             output = F.log_softmax(output, dim=1)
