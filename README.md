@@ -39,7 +39,7 @@ To run the code without GPU, NVIDIA-Docker is not required and remove `--gpus al
 
 ### Usage
 
-You can find an example script to run the poroposed SSL approach on CIFAR-10 with 500 labeled samples in [RunScripts_SOTA500.sh](https://github.com/EricArazo/PseudoLabeling/cifar10/RunScripts_SOTA500.sh) and for CIFAR-100 with 4000 labeled samples in [RunScripts_SOTA4000.sh](https://github.com/EricArazo/PseudoLabeling/cifar100/RunScripts_SOTA4000.sh). Execute the script from the corresponding folder to train the model.
+You can find an example script to run the poroposed SSL approach on CIFAR-10 with 500 labeled samples in [RunScripts_SOTA500.sh](https://github.com/EricArazo/PseudoLabeling/blob/master/cifar10/RunScripts_SOTA500.sh) and for CIFAR-100 with 4000 labeled samples in [RunScripts_SOTA4000.sh](https://github.com/EricArazo/PseudoLabeling/blob/master/cifar100/RunScripts_SOTA4000.sh). Execute the script from the corresponding folder to train the model.
 
 ### Parameters details
 Execute the following to get details about parameters. Most of them are set by default to replicate our experiments.
