@@ -1,6 +1,5 @@
 import torch
 import torch.nn.functional as F
-from IPython import embed
 
 def accuracy_v1(preds, labels, top=[1,5]):
     """Compute the precision@k for the specified values of k"""

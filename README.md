@@ -1,19 +1,45 @@
 # Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning (2019)
 ### Paper: https://arxiv.org/abs/1908.02983
 
-Official Pytorch implementation from authors. Our pseudo-labeling approach achieves state-of-the-art performance for semi-supervised learning (SSL) in Image Classification. You can find an example script to run the poroposed SSL approach on CIFAR-10 with 1000 labeled samples in [RunScripts_SOTA1000.sh](https://github.com/EricArazo/PseudoLabeling/cifar10/RunScripts_SOTA1000.sh) and for CIFAR-100 with 4000 labeled samples in [RunScripts_SOTA4000.sh](https://github.com/EricArazo/PseudoLabeling/cifar100/RunScripts_SOTA4000.sh). Execute the script from the corresponding folder to train the model.
+![Hits](https://hitcounter.pythonanywhere.com/count/tag.svg?url=https%3A%2F%2Fgithub.com%2FEricArazo%2FPseudoLabeling)
 
- | Dependencies  |
+Official Pytorch implementation from authors. Our pseudo-labeling approach achieves state-of-the-art performance for semi-supervised learning (SSL) in Image Classification. 
+
+ ### Installation
+ 
+ #### Docker
+
+- Install [Docker](https://docs.docker.com/install/) and [NVIDIA-Docker](https://github.com/NVIDIA/nvidia-docker)
+
+- Build the image: `docker build -t pseudolabeling .`
+
+- Start the container:
+
+```
+docker run --gpus all \
+--name pseudolabeling \
+-v $(pwd):/pseudolabeling \
+-it -w="/pseudolabeling" \
+pseudolabeling bash
+```
+To run the code without GPU, NVIDIA-Docker is not required and remove `--gpus all`
+ 
+ #### Manual install
+|Dependencies  |
 | ------------- |
-| python == 3.5.2     |
-| pytorch == 0.4.1     |
-| cuda == 8.0|
-| torchvision == 0.2.1|
-| matplotlib == 3.0.1|
-| scikit-learn == 0.20.0|
-| tqdm == 4.28.1|
-| numpy == 1.15.3|
+| python==3.5.2|
+| pytorch==0.4.1|
+| cuda==8.0|
+| torchvision==0.2.1|
+| torchcontrib==0.0.2|
+| matplotlib==3.0.1|
+| scikit-learn==0.20.0|
+| tqdm==4.28.1|
+| numpy==1.15.3|
 
+### Usage
+
+You can find an example script to run the poroposed SSL approach on CIFAR-10 with 500 labeled samples in [RunScripts_SOTA500.sh](https://github.com/EricArazo/PseudoLabeling/cifar10/RunScripts_SOTA500.sh) and for CIFAR-100 with 4000 labeled samples in [RunScripts_SOTA4000.sh](https://github.com/EricArazo/PseudoLabeling/cifar100/RunScripts_SOTA4000.sh). Execute the script from the corresponding folder to train the model.
 
 ### Parameters details
 Execute the following to get details about parameters. Most of them are set by default to replicate our experiments.
