@@ -12,7 +12,6 @@ import argparse
 import logging
 import os
 import time
-from IPython import embed
 
 
 from dataset.cifar100 import get_dataset
