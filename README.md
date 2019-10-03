@@ -1,7 +1,6 @@
 # Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning (2019)
 ### Paper: https://arxiv.org/abs/1908.02983
 
-![Hits](https://hitcounter.pythonanywhere.com/count/tag.svg?url=https%3A%2F%2Fgithub.com%2FEricArazo%2FPseudoLabeling)
 
 Official Pytorch implementation from authors. Our pseudo-labeling approach achieves state-of-the-art performance for semi-supervised learning (SSL) in Image Classification. 
 
