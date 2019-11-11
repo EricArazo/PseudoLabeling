@@ -64,7 +64,7 @@ def parse_args():
     parser.add_argument('--swa_start', type=int, default=350, help='Start SWA')
     parser.add_argument('--swa_freq', type=float, default=5, help='Frequency')
     parser.add_argument('--swa_lr', type=float, default=-0.01, help='LR')
-    parser.add_argument('--labeled_batch_size', default=8, type=int, metavar='N', help="labeled examples per minibatch (default: no constrain)")
+    parser.add_argument('--labeled_batch_size', default=16, type=int, metavar='N', help="labeled examples per minibatch (default: no constrain)")
     parser.add_argument('--validation_exp', type=str, default='False', help='Ignore the testing set during training and evaluation (it gets 5k samples from the training data to do the validation step)')
     parser.add_argument('--drop_extra_forward', type=str, default='True', help='Do an extra forward pass to compute the labels without dropout.')
     parser.add_argument('--val_samples', type=int, default=5000, help='Number of samples to be kept for validation (from the training set))')
