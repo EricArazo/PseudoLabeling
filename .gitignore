@@ -13,3 +13,10 @@ cifar100/noise_models*
 cifar100/checkpoints/*
 cifar100/model/data/*
 cifar100/data/model_data/*
+
+miniImagenet/data/miniImagenet*
+miniImagenet/metrics*
+miniImagenet/noise_models*
+miniImagenet/checkpoints/*
+miniImagenet/model/data/*
+miniImagenet/data/model_data/*
