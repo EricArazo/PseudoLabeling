@@ -1,0 +1,5 @@
+The MiniImageNet dataset has been created with the code from the following link:
+https://github.com/gitabcworld/FewShotLearning/tree/master/utils
+
+Then it should be placed in:
+PseudoLabeling/miniImagenet/data/

@@ -12,15 +12,16 @@ import argparse
 import os
 import time
 
-from dataset.cifar100 import get_dataset
+from dataset.miniImagenet import get_dataset
 
 sys.path.append('../utils_pseudoLab/')
 from TwoSampler import *
 from utils_ssl import *
 
+from ssl_networks import resnet18
+from PreResNet import ResNet18 as preActResNet18
+from ssl_networks import resnet18_wndrop
 from ssl_networks import CNN as MT_Net
-from PreResNet import PreactResNet18_WNdrop
-from wideArchitectures import WRN28_2_wn
 
 def parse_args():
     parser = argparse.ArgumentParser(description='command for the first train')
@@ -36,36 +37,35 @@ def parse_args():
     parser.add_argument('--reg1', type=float, default=0.8, help='Hyperparam for loss')
     parser.add_argument('--reg2', type=float, default=0.4, help='Hyperparam for loss')
     parser.add_argument('--download', type=bool, default=False, help='Download dataset')
-    parser.add_argument('--network', type=str, default='MT_Net', help='The backbone of the network')
+    parser.add_argument('--network', type=str, default='resnet18_wndrop', help='The backbone of the network')
     parser.add_argument('--seed', type=int, default=1, help='Random seed (default: 1)')
     parser.add_argument('--seed_val', type=int, default=1, help='Seed for the validation split')
     parser.add_argument('--M', action='append', type=int, default=[], help="Milestones for the LR sheduler")
     parser.add_argument('--experiment_name', type=str, default = 'Proof',help='Name of the experiment (for the output files)')
-    parser.add_argument('--loss_term', type=str, default='MixUp_ep', help='The regularization to use: "None", "Reg_e", "Reg_p", "Reg_ep", or "Reg_d"')
+    parser.add_argument('--loss_term', type=str, default='MixUp_ep', help='The regularizatio to use: "None", "Reg_e", "Reg_p", "Reg_ep", or "Reg_d"')
     parser.add_argument('--num_classes', type=int, default=100, help='Beta parameter for the EMA in the soft labels')
     parser.add_argument('--dropout', type=float, default=0.0, help='CNN dropout')
     parser.add_argument('--load_epoch', type=int, default=0, help='Load model from the last epoch from the warmup')
     parser.add_argument('--Mixup_Alpha', type=float, default=1, help='Alpha value for the beta dist from mixup')
     parser.add_argument('--cuda_dev', type=int, default=0, help='Set to 1 to choose the second gpu')
-    parser.add_argument('--dataset', type=str, default='cifar100', help='Dataset name')
+    parser.add_argument('--dataset', type=str, default='miniImagenet', help='Dataset name')
     parser.add_argument('--swa', type=str, default='True', help='Apply SWA')
     parser.add_argument('--swa_start', type=int, default=350, help='Start SWA')
     parser.add_argument('--swa_freq', type=float, default=5, help='Frequency')
     parser.add_argument('--swa_lr', type=float, default=0.001, help='LR')
     parser.add_argument('--labeled_batch_size', default=16, type=int, metavar='N', help="Labeled examples per minibatch (default: no constrain)")
     parser.add_argument('--validation_exp', type=str, default='False', help='Ignore the testing set during training and evaluation (it gets 5k samples from the training data to do the validation step)')
-    parser.add_argument('--val_samples', type=int, default=5000, help='Number of samples to be kept for validation (from the training set))')
+    parser.add_argument('--val_samples', type=int, default=0, help='Number of samples to be kept for validation (from the training set))')
+    parser.add_argument('--pre_load', type=str, default='False', help='Load all the images to memory')
     parser.add_argument('--DA', type=str, default='standard', help='Chose the type of DA')
-    parser.add_argument('--DApseudolab', type=str, default="False", help='Apply data augmentation when computing pseudolabels')
+    parser.add_argument('--DApseudolab', type=str, default="True", help='Apply data augmentation when computing pseudolabels')
     parser.add_argument('--drop_extra_forward', type=str, default='True', help='Do an extra forward pass to compute the labels without dropout.')
+
 
     args = parser.parse_args()
     return args
 
 def data_config(args, transform_train, transform_test):
-
-    if args.validation_exp == "False":
-        args.val_samples = 0
 
     ####################################### Train ##########################################################
     trainset, unlabeled_indexes, labeled_indexes, valset = get_dataset(args, transform_train, transform_test)
@@ -77,14 +77,9 @@ def data_config(args, transform_train, transform_test):
     else:
         train_loader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=0, pin_memory=True)
 
-    if args.validation_exp == "True":
-        print("Training to choose hyperparameters --- VALIDATON MODE ---.")
-        testset = valset
-    else:
-        print("Training to compare to the SOTA --- TESTING MODE ---.")
-        testset = datasets.CIFAR100(root='./data', train=False, download=False, transform=transform_test)
+    # Only implmemnted the SOTA experiments (no hyperparameter choosing in MiniImageNet)
 
-    test_loader = torch.utils.data.DataLoader(testset, batch_size=args.test_batch_size, shuffle=False, num_workers=0, pin_memory=True)
+    test_loader = torch.utils.data.DataLoader(valset, batch_size=args.test_batch_size, shuffle=False, num_workers=0, pin_memory=True)
 
     # train and val
     print('-------> Data loading')
@@ -118,11 +113,14 @@ def main(args):
     elif args.dataset == 'cifar100':
         mean = [0.5071, 0.4867, 0.4408]
         std = [0.2675, 0.2565, 0.2761]
+    elif args.dataset == 'miniImagenet':
+        mean = [0.4728, 0.4487, 0.4031]
+        std = [0.2744, 0.2663 , 0.2806]
 
     if args.DA == "standard":
         transform_train = transforms.Compose([
-            transforms.Pad(2, padding_mode='reflect'),
-            transforms.RandomCrop(32),
+            transforms.Pad(6, padding_mode='reflect'),
+            transforms.RandomCrop(84),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(mean, std),
@@ -130,9 +128,9 @@ def main(args):
 
     elif args.DA == "jitter":
         transform_train = transforms.Compose([
-            transforms.Pad(2, padding_mode='reflect'),
+            transforms.Pad(6, padding_mode='reflect'),
             transforms.ColorJitter(brightness= 0.4, contrast= 0.4, saturation= 0.4, hue= 0.1),
-            transforms.RandomCrop(32),
+            transforms.RandomCrop(84),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
             transforms.Normalize(mean, std),
@@ -149,22 +147,24 @@ def main(args):
     # data lodaer
     train_loader, test_loader, unlabeled_indexes = data_config(args, transform_train, transform_test)
 
+    if args.network == "TE_Net":
+        print("Loading TE_Net...")
+        model = TE_Net(num_classes = args.num_classes).to(device)
 
-    if args.network == "MT_Net":
+    elif args.network == "MT_Net":
         print("Loading MT_Net...")
-        model = MT_Net(num_classes = args.num_classes, dropRatio = args.dropout).to(device)
+        model = MT_Net(num_classes = args.num_classes).to(device)
 
-    elif args.network == "WRN28_2_wn":
-        print("Loading WRN28_2...")
-        model = WRN28_2_wn(num_classes = args.num_classes, dropout = args.dropout).to(device)
+    elif args.network == "resnet18":
+        print("Loading Resnet18...")
+        model = resnet18(num_classes = args.num_classes).to(device)
 
-    elif args.network == "PreactResNet18_WNdrop":
-        print("Loading preActResNet18_WNdrop...")
-        model = PreactResNet18_WNdrop(drop_val = args.dropout, num_classes = args.num_classes).to(device)
+    elif args.network == "resnet18_wndrop":
+        print("Loading Resnet18...")
+        model = resnet18_wndrop(num_classes = args.num_classes).to(device)
 
 
-
-    print('Total params: %2.fM' % (sum(p.numel() for p in model.parameters()) / 1000000.0))
+    print('Total params: {:.2f} M'.format((sum(p.numel() for p in model.parameters()) / 1000000.0)))
 
     milestones = args.M
 
@@ -187,6 +187,7 @@ def main(args):
     loss_val_epoch = []
     acc_train_per_epoch = []
     acc_val_per_epoch = []
+    new_labels = []
 
     exp_path = os.path.join('./', 'ssl_models_{0}'.format(args.experiment_name), str(args.labeled_samples))
     res_path = os.path.join('./', 'metrics_{0}'.format(args.experiment_name), str(args.labeled_samples))
@@ -215,8 +216,6 @@ def main(args):
             train_type = 'C'
         if args.loss_term == 'MixUp_ep':
             train_type = 'M'
-        if args.dropout > 0.0:
-            train_type = train_type + 'drop' + str(int(10*args.dropout))
         path = './checkpoints/warmUp_{0}_{1}_{2}_{3}_{4}_{5}_S{6}.hdf5'.format(train_type, \
                                                                                 args.Mixup_Alpha, \
                                                                                 load_epoch, \
@@ -232,7 +231,7 @@ def main(args):
         print("Relabeling the unlabeled samples...")
         model.eval()
         results = np.zeros((len(train_loader.dataset), args.num_classes), dtype=np.float32)
-        for images, images_pslab, labels, soft_labels, index in train_loader:
+        for images, images_pslab, labels, soft_labels, index, z_exp_labels in train_loader:
 
             images = images.to(device)
             labels = labels.to(device)
@@ -261,13 +260,10 @@ def main(args):
         train_time = train_CrossEntropy(args, model, device, \
                                         train_loader, optimizer, \
                                         epoch, unlabeled_indexes)
+
         loss_train_epoch += [loss_per_epoch_train]
 
-        # test
-        if args.validation_exp == "True":
-            loss_per_epoch_test, acc_val_per_epoch_i = validating(args, model, device, test_loader)
-        else:
-            loss_per_epoch_test, acc_val_per_epoch_i = testing(args, model, device, test_loader)
+        loss_per_epoch_test, acc_val_per_epoch_i = testing(args, model, device, test_loader)
 
         loss_val_epoch += loss_per_epoch_test
         acc_train_per_epoch += [top1_train_ac]
@@ -316,8 +312,6 @@ def main(args):
                 train_type = 'C'
             if args.loss_term == 'MixUp_ep':
                 train_type = 'M'
-            if args.dropout > 0.0:
-                train_type = train_type + 'drop' + str(int(10*args.dropout))
 
             cond = (epoch==args.epoch)
             name = 'warmUp_{1}_{0}'.format(args.Mixup_Alpha, train_type)
@@ -343,11 +337,9 @@ def main(args):
 
                 }, filename = path)
 
-
         ####################################################################################################
         ############################               SAVING METRICS                ###########################
         ####################################################################################################
-
 
         # Save losses:
         np.save(res_path + '/' + str(args.labeled_samples) + '_LOSS_epoch_train.npy', np.asarray(loss_train_epoch))
@@ -357,15 +349,11 @@ def main(args):
         np.save(res_path + '/' + str(args.labeled_samples) + '_accuracy_per_epoch_train.npy',np.asarray(acc_train_per_epoch))
         np.save(res_path + '/' + str(args.labeled_samples) + '_accuracy_per_epoch_val.npy', np.asarray(acc_val_per_epoch))
 
-
     # applying swa
     if args.swa == 'True':
         optimizer.swap_swa_sgd()
         optimizer.bn_update(train_loader, model, device)
-        if args.validation_exp == "True":
-            loss_swa, acc_val_swa = validating(args, model, device, test_loader)
-        else:
-            loss_swa, acc_val_swa = testing(args, model, device, test_loader)
+        loss_swa, acc_val_swa = testing(args, model, device, test_loader)
 
         snapLast = 'last_epoch_%d_valLoss_%.5f_valAcc_%.5f_labels_%d_bestValLoss_%.5f_swaAcc_%.5f' % (
             epoch, loss_per_epoch_test[-1], acc_val_per_epoch_i[-1], args.labeled_samples, best_acc_val, acc_val_swa[0])

@@ -15,11 +15,7 @@ import time
 import warnings
 warnings.filterwarnings('ignore')
 from sklearn import preprocessing as preprocessing
-
-
 import sys
-from tqdm import tqdm
-
 from math import pi
 from math import cos
 
@@ -36,18 +32,8 @@ def loss_soft_reg_ep(preds, labels, soft_labels, device, args):
     L_p = -torch.sum(torch.log(prob_avg) * p)
     L_e = -torch.mean(torch.sum(prob * F.log_softmax(preds, dim=1), dim=1))
 
-    loss = L_c + args.alpha * L_p + args.beta * L_e
+    loss = L_c + args.reg1 * L_p + args.reg2 * L_e
     return prob, loss
-
-##############################################################################
-
-def cyclic_lr(args, iteration, current_epoch, it_per_epoch):
-    # proposed learning late function
-    T_iteration = it_per_epoch*current_epoch + iteration
-    T_epoch_per_cycle = args.SE_epoch_per_cycle*it_per_epoch
-    T_iteration = T_iteration%T_epoch_per_cycle
-    return args.lr * (cos(pi * T_iteration / T_epoch_per_cycle) + 1) / 2
-##############################################################################
 
 ##############################################################################
 def mixup_data(x, y, alpha=1.0, device='cuda'):
@@ -79,48 +65,37 @@ def loss_mixup_reg_ep(preds, labels, targets_a, targets_b, device, lam, args):
     L_p = -torch.sum(torch.log(prob_avg) * p)
     L_e = -torch.mean(torch.sum(prob * F.log_softmax(preds, dim=1), dim=1))
 
-    loss = mixup_loss + args.alpha * L_p + args.beta * L_e
+    loss = mixup_loss + args.reg1 * L_p + args.reg2 * L_e
     return prob, loss
 
 
 ##############################################################################
 
-def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer, epoch, train_noisy_indexes):
+def train_CrossEntropy(args, model, device, train_loader, optimizer, epoch, unlabeled_indexes):
     batch_time = AverageMeter()
     train_loss = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
-    w = torch.Tensor([0.0])
-
-    top1_origLab = AverageMeter()
 
     # switch to train mode
     model.train()
     loss_per_batch = []
     acc_train_per_batch = []
 
-    alpha_hist = []
-
     end = time.time()
 
     results = np.zeros((len(train_loader.dataset), args.num_classes), dtype=np.float32)
-
 
     if args.loss_term == "Reg_ep":
         print("Training with cross entropy and regularization for soft labels and for predicting different classes (Reg_ep)")
     elif args.loss_term == "MixUp_ep":
         print("Training with Mixup and regularization for soft labels and for predicting different classes (MixUp_ep)")
         alpha = args.Mixup_Alpha
-
         print("Mixup alpha value:{}".format(alpha))
-
-    target_original = torch.from_numpy(train_loader.dataset.original_labels)
 
     counter = 1
     for imgs, img_pslab, labels, soft_labels, index in train_loader:
-        images = imgs.to(device)
-        labels = labels.to(device)
-        soft_labels = soft_labels.to(device)
+        images, labels, counter = imgs.to(device), labels.to(device), soft_labels.to(device)
 
         if args.DApseudolab == "False":
             images_pslab = img_pslab.to(device)
@@ -131,7 +106,7 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
                     tempdrop = model.drop
                     model.drop = 0.0
 
-                elif args.network == "WRN28_2_wn":
+                elif args.network == "WRN28_2_wn" or args.network == "resnet18_wndrop":
                     for m in model.modules():
                         if isinstance(m, nn.Dropout):
                             tempdrop = m.p
@@ -155,7 +130,7 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
                 if args.network == "PreactResNet18_WNdrop":
                     model.drop = tempdrop
 
-                elif args.network == "WRN28_2_wn":
+                elif args.network == "WRN28_2_wn" or args.network == "resnet18_wndrop":
                     for m in model.modules():
                         if isinstance(m, nn.Dropout):
                             m.p = tempdrop
@@ -181,7 +156,6 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
         train_loss.update(loss.item(), images.size(0))
         top1.update(prec1.item(), images.size(0))
         top5.update(prec5.item(), images.size(0))
-        top1_origLab_avg = 0
 
         # compute gradient and do SGD step
         optimizer.zero_grad()
@@ -204,10 +178,9 @@ def train_CrossEntropy_partialRelab(args, model, device, train_loader, optimizer
             optimizer.update_swa()
 
     # update soft labels
+    train_loader.dataset.update_labels(results, unlabeled_indexes)
 
-    train_loader.dataset.update_labels_randRelab(results, train_noisy_indexes, args.label_noise)
-
-    return train_loss.avg, top5.avg, top1_origLab_avg, top1.avg, batch_time.sum
+    return train_loss.avg, top5.avg, top1.avg, batch_time.sum
 
 ###################################################################################
 

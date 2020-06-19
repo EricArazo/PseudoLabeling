@@ -1,9 +1,7 @@
 #!/bin/bash
-# Running things
-
 
 # Warm up of  10 epochs
-python3 train.py --labeled_samples 500 --epoch 10 --dataset_type "sym_noise_warmUp" \
+python3 train.py --labeled_samples 500 --epoch 10 --dataset_type "ssl_warmUp" \
 --dropout 0.1 --DA "jitter" --experiment_name "WuP_model" --download "True"
 
 # SSL training

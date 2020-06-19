@@ -38,7 +38,7 @@ To run the code without GPU, NVIDIA-Docker is not required and remove `--gpus al
 
 ### Usage
 
-You can find an example script to run the poroposed SSL approach on CIFAR-10 with 500 labeled samples in [RunScripts_SOTA500.sh](https://github.com/EricArazo/PseudoLabeling/blob/master/cifar10/RunScripts_SOTA500.sh) and for CIFAR-100 with 4000 labeled samples in [RunScripts_SOTA4000.sh](https://github.com/EricArazo/PseudoLabeling/blob/master/cifar100/RunScripts_SOTA4000.sh). Execute the script from the corresponding folder to train the model.
+You can find an example script to run the poroposed SSL approach on CIFAR-10 with 500 labeled samples in [RunScripts_SOTA500.sh](https://github.com/EricArazo/PseudoLabeling/blob/master/cifar10/RunScripts_SOTA500.sh), for CIFAR-100 with 4000 labeled samples in [RunScripts_SOTA4000.sh](https://github.com/EricArazo/PseudoLabeling/blob/master/cifar100/RunScripts_SOTA4000.sh), and  for MiniImagenNet with 4000 labeled samples in [RunScripts_SOTA4000.sh](https://github.com/EricArazo/PseudoLabeling/blob/master/miniImagenet/RunScripts_SOTA4000.sh). Execute the script from the corresponding folder to train the model.
 
 ### Parameters details
 Execute the following to get details about parameters. Most of them are set by default to replicate our experiments.
@@ -49,10 +49,10 @@ The most relevant parameters are the following:
 * --labeled_samples: Number of labeled samples 
 * --epoch: Number of epochs of training
 * --M: Epochs where the learning rate is divided by 10
-* --network: Network architecture ("MT\_Net", "WRN28\_2\_wn", or "PreactResNet18\_WNdrop")
+* --network: Network architecture ("MT\_Net", "WRN28\_2\_wn", "PreactResNet18\_WNdrop", or "resnet18\_wndrop")
 * --DA: Type of data augmentation ("standard" or "jitter")
 
-To run the experiments download the corresponding dataset in the folder ./CIFAR10/data or ./CIFAR100/data.
+To run the CIFAR experiments download the corresponding dataset in the folder ./CIFAR10/data or ./CIFAR100/data. To run the MiniImageNet experiments download the ImageNet dataset, pre-process (see [create_dataset.txt](https://github.com/EricArazo/PseudoLabeling/blob/master/miniImagenet/dataset/create_dataset.txt)), and place it in ./miniImagenet/data. 
 
 ### Test Errors
 
@@ -60,6 +60,7 @@ To run the experiments download the corresponding dataset in the folder ./CIFAR1
 |----|----|----|----|----|
 |CIFAR-10|8.80 ± 0.45|6.85 ± 0.15|5.97 ± 0.15|----|
 |CIFAR-100|----|----|37.55 ± 1.09|32.15 ± 0.5|
+|CIFAR-100|----|----|56.49 ± 0.51|46.08 ± 0.11|
 
 
 ### Acknowledgements
@@ -76,13 +77,13 @@ We would like to thank [1] (https://github.com/benathi/fastswa-semi-sup) for the
 ### Please consider citing the following paper if you find this work useful for your research.
 
 ```
- @article{PseudoLabel2019,
+ @inproceedings{pseudoLabel2019,
   title = {Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning},
   authors = {Eric Arazo and Diego Ortego and Paul Albert and Noel E O'Connor and Kevin McGuinness},
-  journal = {arXiv:1908.02983},
-  month = {August},
-  year = {2019}
- }
+  booktitle={2020 International Joint Conference on Neural Networks (IJCNN)},
+  year={2020},
+  organization={IEEE}
+ } 
 ```
 
 Eric Arazo, Diego Ortego, Paul Albert, Noel E. O'Connor, Kevin McGuinness, Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning, arXiv:1908.02983, 2019
