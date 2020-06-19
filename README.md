@@ -52,7 +52,7 @@ The most relevant parameters are the following:
 * --network: Network architecture ("MT\_Net", "WRN28\_2\_wn", "PreactResNet18\_WNdrop", or "resnet18\_wndrop")
 * --DA: Type of data augmentation ("standard" or "jitter")
 
-To run the CIFAR experiments download the corresponding dataset in the folder ./CIFAR10/data or ./CIFAR100/data. To run the MiniImageNet experiments download the ImageNet dataset, pre-process (see [create_dataset.txt](https://github.com/EricArazo/PseudoLabeling/blob/master/miniImagenet/dataset/create_dataset.txt)), and place it in ./miniImagenet/data. 
+To run the CIFAR experiments download the corresponding dataset in the folder ./CIFAR10/data or ./CIFAR100/data. To run the MiniImageNet experiments download the ImageNet dataset, pre-process it (see [create_dataset.txt](https://github.com/EricArazo/PseudoLabeling/blob/master/miniImagenet/dataset/create_dataset.txt)), and place it in ./miniImagenet/data. 
 
 ### Test Errors
 
@@ -60,7 +60,7 @@ To run the CIFAR experiments download the corresponding dataset in the folder ./
 |----|----|----|----|----|
 |CIFAR-10|8.80 ± 0.45|6.85 ± 0.15|5.97 ± 0.15|----|
 |CIFAR-100|----|----|37.55 ± 1.09|32.15 ± 0.5|
-|CIFAR-100|----|----|56.49 ± 0.51|46.08 ± 0.11|
+|MiniImageNet|----|----|56.49 ± 0.51|46.08 ± 0.11|
 
 
 ### Acknowledgements
@@ -86,4 +86,4 @@ We would like to thank [1] (https://github.com/benathi/fastswa-semi-sup) for the
  } 
 ```
 
-Eric Arazo, Diego Ortego, Paul Albert, Noel E. O'Connor, Kevin McGuinness, Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning, arXiv:1908.02983, 2019
+Eric Arazo, Diego Ortego, Paul Albert, Noel E. O'Connor, Kevin McGuinness, Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning, International Joint Conference on Neural Networks (IJCNN), 2020
