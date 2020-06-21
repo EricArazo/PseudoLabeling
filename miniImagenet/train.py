@@ -19,7 +19,6 @@ from TwoSampler import *
 from utils_ssl import *
 
 from ssl_networks import resnet18
-from PreResNet import ResNet18 as preActResNet18
 from ssl_networks import resnet18_wndrop
 from ssl_networks import CNN as MT_Net
 
@@ -32,7 +31,7 @@ def parse_args():
     parser.add_argument('--wd', type=float, default=1e-4, help='Weight decay')
     parser.add_argument('--momentum', default=0.9, type=float, help='Momentum')
     parser.add_argument('--dataset_type', default='ssl', help='How to prepare the data: only labeled data for the warmUp ("ssl_warmUp") or unlabeled and labeled for the SSL training ("ssl")')
-    parser.add_argument('--train_root', default='./data', help='Root for train data')
+    parser.add_argument('--train_root', default='./data/miniImagenet/miniImagenet84', help='Root for train data')
     parser.add_argument('--labeled_samples', type=int, default=10000, help='Number of labeled samples')
     parser.add_argument('--reg1', type=float, default=0.8, help='Hyperparam for loss')
     parser.add_argument('--reg2', type=float, default=0.4, help='Hyperparam for loss')
@@ -231,7 +230,7 @@ def main(args):
         print("Relabeling the unlabeled samples...")
         model.eval()
         results = np.zeros((len(train_loader.dataset), args.num_classes), dtype=np.float32)
-        for images, images_pslab, labels, soft_labels, index, z_exp_labels in train_loader:
+        for images, images_pslab, labels, soft_labels, index in train_loader:
 
             images = images.to(device)
             labels = labels.to(device)

@@ -217,7 +217,7 @@ def main(args):
             train_type = 'M'
         if args.dropout > 0.0:
             train_type = train_type + 'drop' + str(int(10*args.dropout))
-        if args.beta == 0.0:
+        if args.reg2 == 0.0:
             train_type = train_type + 'noReg'
         path = './checkpoints/warmUp_{0}_{1}_{2}_{3}_{4}_{5}_S{6}.hdf5'.format(train_type, \
                                                                                 args.Mixup_Alpha, \
@@ -324,7 +324,7 @@ def main(args):
                 train_type = 'M'
             if args.dropout > 0.0:
                 train_type = train_type + 'drop' + str(int(10*args.dropout))
-            if args.beta == 0.0:
+            if args.reg2 == 0.0:
                 train_type = train_type + 'noReg'
 
 

@@ -21,7 +21,7 @@ def get_dataset(args, transform_train, transform_val):
     elif args.dataset_type == 'ssl':
         unlabeled_indexes, labeled_indexes = train.prepare_data_ssl()
 
-    return train, unlabeled_indexes, labeled_indexes, validation
+    return train, unlabeled_indexes, labeled_indexes, val
 
 class MiniImagenet84(Dataset):
     def __init__(self, args, data, labels, train=True, transform=None, target_transform=None, pslab_transform = None, download=False):
@@ -131,10 +131,9 @@ class MiniImagenet84(Dataset):
             labels = self.target_transform(labels)
 
         if self.train:
-            return img, img_pseudolabels, labels, soft_labels, index, 0
+            return img, img_pseudolabels, labels, soft_labels, index
         else:
             return img, labels
-
 
     def __len__(self):
         return len(self.train_data)

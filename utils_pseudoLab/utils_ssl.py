@@ -95,7 +95,7 @@ def train_CrossEntropy(args, model, device, train_loader, optimizer, epoch, unla
 
     counter = 1
     for imgs, img_pslab, labels, soft_labels, index in train_loader:
-        images, labels, counter = imgs.to(device), labels.to(device), soft_labels.to(device)
+        images, labels, soft_labels = imgs.to(device), labels.to(device), soft_labels.to(device)
 
         if args.DApseudolab == "False":
             images_pslab = img_pslab.to(device)
