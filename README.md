@@ -79,7 +79,7 @@ We would like to thank [1] (https://github.com/benathi/fastswa-semi-sup) for the
 ```
  @inproceedings{pseudoLabel2019,
   title = {Pseudo-Labeling and Confirmation Bias in Deep Semi-Supervised Learning},
-  authors = {Eric Arazo and Diego Ortego and Paul Albert and Noel E O'Connor and Kevin McGuinness},
+  author = {Eric Arazo and Diego Ortego and Paul Albert and Noel E O'Connor and Kevin McGuinness},
   booktitle={2020 International Joint Conference on Neural Networks (IJCNN)},
   year={2020},
   organization={IEEE}
